@@ -36,7 +36,7 @@ class CRM_Xdedupe_Resolver_BumpAddressConflicts extends CRM_Xdedupe_Resolver
     ];
 
     /**
-     * get the name of the finder
+     * get the name of the resolver
      * @return string name
      */
     public function getName()
@@ -45,7 +45,7 @@ class CRM_Xdedupe_Resolver_BumpAddressConflicts extends CRM_Xdedupe_Resolver
     }
 
     /**
-     * get an explanation what the finder does
+     * get an explanation what the resolver does
      * @return string name
      */
     public function getHelp()
@@ -68,7 +68,7 @@ class CRM_Xdedupe_Resolver_BumpAddressConflicts extends CRM_Xdedupe_Resolver
      */
     public function resolve($main_contact_id, $other_contact_ids)
     {
-        // get main contact's phones
+        // get main contact's addresses
         $main_contact_addresses = $this->getContactAddresses($main_contact_id);
         if ($this->containsConflictAddress($main_contact_addresses)) {
             // if there already is a conflict address, there's nothing we can do
