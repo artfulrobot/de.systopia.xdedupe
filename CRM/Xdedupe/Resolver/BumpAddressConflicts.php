@@ -164,9 +164,9 @@ class CRM_Xdedupe_Resolver_BumpAddressConflicts extends CRM_Xdedupe_Resolver
     protected function addressEquals($address1, $address2)
     {
         foreach (self::$relevant_address_fields as $attribute) {
-            $value1 = CRM_Utils_Array::value($attribute, $address1, '');
-            $value2 = CRM_Utils_Array::value($attribute, $address2, '');
-            if ($value1 != $value2) {
+            $value1 = trim($address1[$attribute] ?? '');
+            $value2 = trim($address2[$attribute] ?? '');
+            if (mb_strtolower($value1) != mb_strtolower($value2)) {
                 return false;
             }
         }
