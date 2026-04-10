@@ -102,6 +102,7 @@ class CRM_Xdedupe_Config implements EventSubscriberInterface
                 'CRM_Xdedupe_Resolver_Addressee',
                 'CRM_Xdedupe_Resolver_DropSamePhones',
                 'CRM_Xdedupe_Resolver_BumpAddressConflicts',
+                'CRM_Xdedupe_Resolver_AddressHarmonise',
                 'CRM_Xdedupe_Resolver_PhoneMover',
                 'CRM_Xdedupe_Resolver_EmailMover',
                 'CRM_Xdedupe_Resolver_WebsiteMover',
