@@ -115,6 +115,7 @@ class CRM_Xdedupe_Config implements EventSubscriberInterface
                 'CRM_Xdedupe_Resolver_CityCleanup',
                 'CRM_Xdedupe_Resolver_StreetAddressCleanup',
                 'CRM_Xdedupe_Resolver_GreetingsPreferMain',
+                'CRM_Xdedupe_Resolver_DeathIsFinal',
             ]
         );
 
