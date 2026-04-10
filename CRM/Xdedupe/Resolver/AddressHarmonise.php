@@ -3,6 +3,7 @@
 | SYSTOPIA's Extended Deduper                            |
 | Copyright (C) 2019 SYSTOPIA                            |
 | Author: B. Endres (endres@systopia.de)                 |
+| Author: Rich Lott / Artful Robot                       |
 | http://www.systopia.de/                                |
 +--------------------------------------------------------+
 | This program is released as free software under the    |
@@ -211,7 +212,7 @@ class CRM_Xdedupe_Resolver_AddressHarmonise extends CRM_Xdedupe_Resolver
                     // The 'a' address looks plausible.
                     if ($bMissing) {
                         // The 'b' address is incomplete, prefer a.
-                        $deletions['delete'][$b['id']] = "Deleting {$bDesc} because it is incomplete (missing $bMissing) and we already have a complete one.\n$aNormal\n$bNormal";
+                        $deletions[$b['id']] = "Deleting {$bDesc} because it is incomplete (missing $bMissing) and we already have a complete one.\n$aNormal\n$bNormal";
                         // Remove the 'b' address from the list
                         unset($addresses[$bIdx]);
                         continue;
