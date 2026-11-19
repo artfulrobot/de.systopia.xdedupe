@@ -27,7 +27,12 @@ use CRM_Xdedupe_ExtensionUtil as E;
  */
 class CRM_Xdedupe_Resolver_AddressHarmonise extends CRM_Xdedupe_Resolver {
 
-  static public array $handled_address_fields = [
+  /**
+   * The fields to use in Address::get calls.
+   *
+   * @param array<string> $handledAddressFields
+   */
+  static public array $handledAddressFields = [
     'location_type_id:name',
     'street_address',
     'supplemental_address_1',
@@ -43,7 +48,9 @@ class CRM_Xdedupe_Resolver_AddressHarmonise extends CRM_Xdedupe_Resolver {
   protected string $defaultCountryAbbr;
 
   /**
-   * List of address fields.
+   * List of address fields to compare.
+   *
+   * @param array<string> $addressFields
    */
   protected static array $addressFields = [
     'street_address',
@@ -63,6 +70,11 @@ class CRM_Xdedupe_Resolver_AddressHarmonise extends CRM_Xdedupe_Resolver {
    * is low value; incomplete.
    */
   protected static array $addressFieldsKey = ['street_address', 'city', 'postal_code'];
+
+  public function __construct(?CRM_Xdedupe_Merge $merge) {
+    $this->defaultCountryAbbr = CRM_Core_BAO_Country::defaultContactCountry();
+    parent::__construct($merge);
+  }
 
   /**
    * get the name of the resolver
@@ -117,7 +129,7 @@ class CRM_Xdedupe_Resolver_AddressHarmonise extends CRM_Xdedupe_Resolver {
     // Load addresses.
     $unsorted = Civi\Api4\Address::get(FALSE)
       ->addWhere('contact_id', 'IN', [$main_contact_id, ...$other_contact_ids])
-      ->setSelect(['contact_id', ... static::$handled_address_fields])
+      ->setSelect(['contact_id', ... static::$handledAddressFields])
       ->execute()->getArrayCopy();
 
     // Combine all addresses per loc type.
@@ -126,6 +138,7 @@ class CRM_Xdedupe_Resolver_AddressHarmonise extends CRM_Xdedupe_Resolver {
 
     $addressesByLocType = [];
     foreach ($unsorted as $x) {
+      /** @var array $x<string, mixed>*/
       $addressesByLocType[$x['location_type_id:name']][] = $x
                 + ['isMainContact' => (int) ($x['contact_id'] == $main_contact_id)];
     }
@@ -163,7 +176,6 @@ class CRM_Xdedupe_Resolver_AddressHarmonise extends CRM_Xdedupe_Resolver {
   protected function dedupeAddresses(array $addresses) {
     $deletions = [];
     $moves = [];
-    $this->defaultCountryAbbr = CRM_Core_BAO_Country::defaultContactCountry();
     while ($a = array_shift($addresses)) {
       $this->handleAddress($a, $addresses, $deletions, $moves);
     }
