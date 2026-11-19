@@ -30,7 +30,7 @@ class CRM_Xdedupe_Resolver_AddressHarmonise extends CRM_Xdedupe_Resolver {
   /**
    * The fields to use in Address::get calls.
    *
-   * @var list<string> $handledAddressFields
+   * @var list<string>
    */
   static public array $handledAddressFields = [
     'location_type_id:name',
@@ -50,7 +50,7 @@ class CRM_Xdedupe_Resolver_AddressHarmonise extends CRM_Xdedupe_Resolver {
   /**
    * List of address fields to compare.
    *
-   * @var list<string> $addressFields
+   * @var list<string>
    */
   protected static array $addressFields = [
     'street_address',
@@ -69,7 +69,7 @@ class CRM_Xdedupe_Resolver_AddressHarmonise extends CRM_Xdedupe_Resolver {
    * If an address is missing any of these details, we consider it
    * is low value; incomplete.
    *
-   * @var list<string> $addressFieldsKey
+   * @var list<string>
    */
   protected static array $addressFieldsKey = ['street_address', 'city', 'postal_code'];
 
@@ -224,7 +224,7 @@ class CRM_Xdedupe_Resolver_AddressHarmonise extends CRM_Xdedupe_Resolver {
 
     // Assume we'll keep this address until proven otherwise.
     if (!$a['isMainContact']) {
-      $moves[(int)$a['id']] = E::ts('Moving %1 to main contact.', [1 => $aDesc]);
+      $moves[(int) $a['id']] = E::ts('Moving %1 to main contact.', [1 => $aDesc]);
     }
 
     // Compare against remaining addresses.

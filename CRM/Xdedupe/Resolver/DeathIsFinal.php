@@ -19,7 +19,6 @@ declare(strict_types = 1);
 
 use CRM_Xdedupe_ExtensionUtil as E;
 
-
 /**
  * Simple ExternalIdentifier Resolver
  */
