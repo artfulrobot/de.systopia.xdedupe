@@ -47,6 +47,7 @@ class CRM_Xdedupe_Resolver_GreetingsPreferMain extends CRM_Xdedupe_Resolver {
    * @return array list of contact attributes
    */
   public function getContactAttributes(): array {
+    // phpcs:ignore Generic.Files.LineLength.TooLong
     return ['email_greeting_id', 'email_greeting_custom', 'postal_greeting_id', 'postal_greeting_custom', 'addressee_id', 'addressee_custom'];
   }
 

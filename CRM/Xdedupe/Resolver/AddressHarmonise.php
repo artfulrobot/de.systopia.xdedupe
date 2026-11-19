@@ -198,11 +198,15 @@ class CRM_Xdedupe_Resolver_AddressHarmonise extends CRM_Xdedupe_Resolver {
     $aMissing = implode(', ', $aMissing);
     // Cache these for log messages.
     $aNormal = implode("\t", $a);
-    $aDesc = "$locTypeName address ($a[id]) for contact $a[contact_id]";
+    $aDesc = E::ts('%1 address (%2) for contact %3', [
+      1 => $locTypeName,
+      2 => $a['id'],
+      3 => $a['contact_id'],
+    ]);
 
     // Assume we'll keep this address until proven otherwise.
     if (!$a['isMainContact']) {
-      $moves[$a['id']] = "Moving $aDesc to main contact.";
+      $moves[$a['id']] = E::ts('Moving %1 to main contact.', [1 => $aDesc]);
     }
 
     // Compare against remaining addresses.
@@ -226,16 +230,29 @@ class CRM_Xdedupe_Resolver_AddressHarmonise extends CRM_Xdedupe_Resolver {
       $bNormal = implode("\t", $b);
 
       // Reusable strings for log messages.
-      $bDesc = "$locTypeName address ($b[id]) for contact $b[contact_id]";
+      $bDesc = E::ts('%1 address (%2) for contact %3', [
+        1 => $locTypeName,
+        2 => $b['id'],
+        3 => $b['contact_id'],
+      ]);
 
-      $this->addMergeDetail("Comparing\n$aNormal\n$bNormal\nsimilar score: $similarScore");
+      $this->addMergeDetail(E::ts('Comparing\n%1\n%2\nsimilar score: %3', [
+        1 => $aNormal,
+        2 => $bNormal,
+        3 => $similarScore,
+      ]));
 
       if (!$aMissing) {
         // The 'a' address looks plausible.
         if ($bMissing) {
           // The 'b' address is incomplete, prefer a.
-          $deletions[$b['id']] = "Deleting {$bDesc} because it is incomplete (missing $bMissing) "
-            . "and we already have a complete one.\n$aNormal\n$bNormal";
+          // phpcs:ignore Generic.Files.LineLength.TooLong
+          $deletions[$b['id']] = E::ts('Deleting %1 because it is incomplete (missing %2) and we already have a complete one.\n%3\n%4', [
+            1 => $bDesc,
+            2 => $bMissing,
+            3 => $aNormal,
+            4 => $bNormal,
+          ]);
           // Remove the 'b' address from the list
           unset($addresses[$bIdx]);
           continue;
@@ -257,15 +274,25 @@ class CRM_Xdedupe_Resolver_AddressHarmonise extends CRM_Xdedupe_Resolver {
             // Both Main, or neither is Main. Just go on which
             // has more data, keeping 'a' if equal.
             if ($moreDataInA >= 0) {
-              $deletions[$b['id']] = "Deleting {$bDesc} because it is a likely-duplicate of another, "
-                . "which has $moreDataInA details.\n$aNormal\n$bNormal";
+              // phpcs:ignore Generic.Files.LineLength.TooLong
+              $deletions[$b['id']] = E::ts('Deleting %1 because it is a likely-duplicate of another, which has %2 details.\n%3\n%4', [
+                1 => $bDesc,
+                2 => $moreDataInA,
+                3 => $aNormal,
+                5 => $bNormal,
+              ]);
               unset($addresses[$bIdx]);
             }
             else {
               // more data in B
               $moreDataInB = -$moreDataInA;
-              $deletions[$a['id']] = "Deleting {$aDesc} because it is a less-complete likely-duplicate "
-                . "of another which has {$moreDataInB} more details.\n$aNormal\n$bNormal";
+              // phpcs:ignore Generic.Files.LineLength.TooLong
+              $deletions[$a['id']] = E::ts('Deleting %1 because it is a less-complete likely-duplicate of another which has %2 more details.\n%3\n', [
+                1 => $aDesc,
+                2 => $moreDataInB,
+                3 => $aNormal,
+                4 => $bNormal,
+              ]);
               unset($moves[$a['id']]);
               continue 2;
             }
@@ -274,12 +301,20 @@ class CRM_Xdedupe_Resolver_AddressHarmonise extends CRM_Xdedupe_Resolver {
             // Allow 2 data items more to be more important than
             // isMainContact.
             if ($moreDataInA >= 0) {
-              $deletions[$b['id']] = "Deleting {$bDesc} because it is a likely-duplicate of another, which has $moreDataInA more details.\n$aNormal\n$bNormal";
+              // phpcs:ignore Generic.Files.LineLength.TooLong
+              $deletions[$b['id']] = E::ts('Deleting %1 because it is a likely-duplicate of another, which has %2 more details.\n%3\n%4', [
+                1 => $bDesc,
+                2 => $moreDataInA,
+                3 => $aNormal,
+                4 => $bNormal,
+              ]);
+              // phpcs:enable
               unset($addresses[$bIdx]);
             }
             else {
               // more data in B
               $moreDataInB = -$moreDataInA;
+              // phpcs:ignore Generic.Files.LineLength.TooLong
               $deletions[$a['id']] = "Deleting {$aDesc} because it is a less-complete likely-duplicate of another which has {$moreDataInB} more details.\n$aNormal\n$bNormal";
               unset($moves[$a['id']]);
               continue 2;
@@ -289,11 +324,21 @@ class CRM_Xdedupe_Resolver_AddressHarmonise extends CRM_Xdedupe_Resolver {
             // zero or one extra vals between the addresses,
             // prefer Main contact's.
             if ($isMainDiff >= 0) {
-              $deletions[$b['id']] = "Deleting {$bDesc} because it is a likely-duplicate of another, which belongs to the main contact.\n$aNormal\n$bNormal";
+              // phpcs:ignore Generic.Files.LineLength.TooLong
+              $deletions[$b['id']] = E::ts('Deleting %1 because it is a likely-duplicate of another, which belongs to the main contact.\n%2\n%3', [
+                1 => $bDesc,
+                2 => $aNormal,
+                3 => $bNormal,
+              ]);
               unset($addresses[$bIdx]);
             }
             else {
-              $deletions[$a['id']] = "Deleting {$aDesc} because it is a likely-duplicate of another, which belongs to the main contact.\n$aNormal\n$bNormal";
+              // phpcs:ignore Generic.Files.LineLength.TooLong
+              $deletions[$a['id']] = E::ts('Deleting %1 because it is a likely-duplicate of another, which belongs to the main contact.\n%2\n%3', [
+                1 => $aDesc,
+                2 => $aNormal,
+                3 => $bNormal,
+              ]);
               unset($moves[$a['id']]);
               continue 2;
             }
@@ -304,7 +349,14 @@ class CRM_Xdedupe_Resolver_AddressHarmonise extends CRM_Xdedupe_Resolver {
       else {
         // 'a' is incomplete...
         if (!$bMissing) {
-          $deletions[$a['id']] = "Deleting {$a['location_type_id:name']} address $a[id] because it is incomplete (missing $aMissing) and we have another which is complete.\n$aNormal\n$bNormal";
+          // phpcs:ignore Generic.Files.LineLength.TooLong
+          $deletions[$a['id']] = E::ts("Deleting %1 address %2 because it is incomplete (missing %3) and we have another which is complete.\n%4\n%5", [
+            1 => $a['location_type_id:name'],
+            2 => $a['id'],
+            3 => $aMissing,
+            4 => $aNormal,
+            5 => $bNormal,
+          ]);
           unset($moves[$a['id']]);
           continue 2;
         }
