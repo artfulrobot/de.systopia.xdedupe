@@ -30,7 +30,7 @@ class CRM_Xdedupe_Resolver_AddressHarmonise extends CRM_Xdedupe_Resolver {
   /**
    * The fields to use in Address::get calls.
    *
-   * @param array<string> $handledAddressFields
+   * @var list<string> $handledAddressFields
    */
   static public array $handledAddressFields = [
     'location_type_id:name',
@@ -50,7 +50,7 @@ class CRM_Xdedupe_Resolver_AddressHarmonise extends CRM_Xdedupe_Resolver {
   /**
    * List of address fields to compare.
    *
-   * @param array<string> $addressFields
+   * @var list<string> $addressFields
    */
   protected static array $addressFields = [
     'street_address',
@@ -68,6 +68,8 @@ class CRM_Xdedupe_Resolver_AddressHarmonise extends CRM_Xdedupe_Resolver {
   /**
    * If an address is missing any of these details, we consider it
    * is low value; incomplete.
+   *
+   * @var list<string> $addressFieldsKey
    */
   protected static array $addressFieldsKey = ['street_address', 'city', 'postal_code'];
 
@@ -138,7 +140,7 @@ class CRM_Xdedupe_Resolver_AddressHarmonise extends CRM_Xdedupe_Resolver {
 
     $addressesByLocType = [];
     foreach ($unsorted as $x) {
-      /** @var array $x<string, mixed>*/
+      /** @var array<string,mixed> $x*/
       $addressesByLocType[$x['location_type_id:name']][] = $x
                 + ['isMainContact' => (int) ($x['contact_id'] == $main_contact_id)];
     }
@@ -167,9 +169,8 @@ class CRM_Xdedupe_Resolver_AddressHarmonise extends CRM_Xdedupe_Resolver {
   /**
    * Try to establish whether any of the addresses in the array are the same.
    *
-   * @param array $addresses
-   *
-   * @return array
+   * @param list<array> $addresses
+   * @return array{array<int,string>,array<int, string>}
    *   Two values: deletions, moves. Each is itself an array whose keys are
    *    address ID, value is log message.
    */
@@ -184,16 +185,21 @@ class CRM_Xdedupe_Resolver_AddressHarmonise extends CRM_Xdedupe_Resolver {
 
   /**
    * Determine the quality of this address and what to do with it.
+   *
+   * @param array<string,mixed> $a
+   * @param list<array> $addresses
+   * @param array<string> &$deletions
+   * @param array<int, string> &$moves
+   *
    */
   // phpcs:disable Generic.Metrics.CyclomaticComplexity.MaxExceeded
-  protected function handleAddress(array $a, array $addresses, array &$deletions, array &$moves) {
+  protected function handleAddress(array $a, array $addresses, array &$deletions, array &$moves): void {
 
     // Note: 'a' and 'b' here are local; they don't refer to main/other
     // contact. Each address contains an isMainContact key for that purpose.
 
     // this is constant across all addresses.
     $locTypeName = $a['location_type_id:name'];
-
     // If country is missing, add in US.
     $a['country_id:abbr'] = $a['country_id:abbr'] ?: $this->defaultCountryAbbr;
 
@@ -218,7 +224,7 @@ class CRM_Xdedupe_Resolver_AddressHarmonise extends CRM_Xdedupe_Resolver {
 
     // Assume we'll keep this address until proven otherwise.
     if (!$a['isMainContact']) {
-      $moves[$a['id']] = E::ts('Moving %1 to main contact.', [1 => $aDesc]);
+      $moves[(int)$a['id']] = E::ts('Moving %1 to main contact.', [1 => $aDesc]);
     }
 
     // Compare against remaining addresses.
@@ -259,7 +265,7 @@ class CRM_Xdedupe_Resolver_AddressHarmonise extends CRM_Xdedupe_Resolver {
         if ($bMissing) {
           // The 'b' address is incomplete, prefer a.
           // phpcs:ignore Generic.Files.LineLength.TooLong
-          $deletions[$b['id']] = E::ts('Deleting %1 because it is incomplete (missing %2) and we already have a complete one.\n%3\n%4', [
+          $deletions[(int) $b['id']] = E::ts('Deleting %1 because it is incomplete (missing %2) and we already have a complete one.\n%3\n%4', [
             1 => $bDesc,
             2 => $bMissing,
             3 => $aNormal,
@@ -272,7 +278,7 @@ class CRM_Xdedupe_Resolver_AddressHarmonise extends CRM_Xdedupe_Resolver {
         // a and b both have the key fields.
         if ($similarScore === 0) {
           // a and b are identical.
-          $deletions[$b['id']] = "Deleting {$bDesc} because it is identical to another.\n$aNormal\n$bNormal";
+          $deletions[(int) $b['id']] = "Deleting {$bDesc} because it is identical to another.\n$aNormal\n$bNormal";
           unset($addresses[$bIdx]);
           continue;
         }
@@ -306,7 +312,7 @@ class CRM_Xdedupe_Resolver_AddressHarmonise extends CRM_Xdedupe_Resolver {
                 4 => $bNormal,
               ]);
               unset($moves[$a['id']]);
-              continue 2;
+              continue;
             }
           }
           elseif (abs($moreDataInA) >= 2) {
@@ -329,7 +335,7 @@ class CRM_Xdedupe_Resolver_AddressHarmonise extends CRM_Xdedupe_Resolver {
               // phpcs:ignore Generic.Files.LineLength.TooLong
               $deletions[$a['id']] = "Deleting {$aDesc} because it is a less-complete likely-duplicate of another which has {$moreDataInB} more details.\n$aNormal\n$bNormal";
               unset($moves[$a['id']]);
-              continue 2;
+              continue;
             }
           }
           else {
@@ -352,7 +358,7 @@ class CRM_Xdedupe_Resolver_AddressHarmonise extends CRM_Xdedupe_Resolver {
                 3 => $bNormal,
               ]);
               unset($moves[$a['id']]);
-              continue 2;
+              continue;
             }
           }
         }
@@ -370,7 +376,7 @@ class CRM_Xdedupe_Resolver_AddressHarmonise extends CRM_Xdedupe_Resolver {
             5 => $bNormal,
           ]);
           unset($moves[$a['id']]);
-          continue 2;
+          continue;
         }
         /* else:
          * 'a' is incomplete, but so is 'b'... Leave it for now,
@@ -396,7 +402,7 @@ class CRM_Xdedupe_Resolver_AddressHarmonise extends CRM_Xdedupe_Resolver {
     );
   }
 
-  protected function similar(string $a, string $b) {
+  protected function similar(string $a, string $b): int {
     // normalise strings. trim, internal spaces normalised to one space,
     // punctuation removed, lowercase.
     [$a, $b] = array_map([$this, 'normalise'], [$a, $b]);

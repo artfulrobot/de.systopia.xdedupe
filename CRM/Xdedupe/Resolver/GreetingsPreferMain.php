@@ -15,9 +15,9 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
-use CRM_Xdedupe_ExtensionUtil as E;
-
 declare(strict_types = 1);
+
+use CRM_Xdedupe_ExtensionUtil as E;
 
 /**
  * Implements a resolver for addressee, email and postal greeting fields.
@@ -44,7 +44,7 @@ class CRM_Xdedupe_Resolver_GreetingsPreferMain extends CRM_Xdedupe_Resolver {
   /**
    * Report the contact attributes that this resolver requires
    *
-   * @return array list of contact attributes
+   * @return list<string> list of contact attributes
    */
   public function getContactAttributes(): array {
     // phpcs:ignore Generic.Files.LineLength.TooLong
@@ -70,9 +70,9 @@ class CRM_Xdedupe_Resolver_GreetingsPreferMain extends CRM_Xdedupe_Resolver {
       $records = [];
       foreach (['email_greeting', 'postal_greeting', 'addressee'] as $type) {
         if (
-        ($main_contact["{$type}_id"] ?? '' != $contact["{$type}_greeting_id"] ?? '')
+        (($main_contact["{$type}_id"] ?? '') != ($contact["{$type}_greeting_id"] ?? ''))
         ||
-        ($main_contact["{$type}_custom"] ?? '' != $contact["{$type}_custom"] ?? '')
+        (($main_contact["{$type}_custom"] ?? '') != ($contact["{$type}_custom"] ?? ''))
         ) {
           $records[] = [
             'id' => $contact['id'],

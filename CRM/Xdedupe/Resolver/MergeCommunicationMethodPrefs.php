@@ -15,9 +15,9 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
-use CRM_Xdedupe_ExtensionUtil as E;
-
 declare(strict_types = 1);
+
+use CRM_Xdedupe_ExtensionUtil as E;
 
 /**
  * Implements a resolver for email and postal greeting fields.
@@ -44,7 +44,7 @@ class CRM_Xdedupe_Resolver_MergeCommunicationMethodPrefs extends CRM_Xdedupe_Res
   /**
    * Report the contact attributes that this resolver requires
    *
-   * @return array list of contact attributes
+   * @return list<string> list of contact attributes
    */
   public function getContactAttributes():array {
     return ['preferred_communication_method'];

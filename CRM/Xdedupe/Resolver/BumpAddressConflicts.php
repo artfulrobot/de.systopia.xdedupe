@@ -48,10 +48,8 @@ class CRM_Xdedupe_Resolver_BumpAddressConflicts extends CRM_Xdedupe_Resolver {
    * @inheritDoc
    */
   public function getHelp(): string {
-    return E::ts(
-      // phpcs:ignore Generic.Files.LineLength.TooLong
-        "If there is conflicting addresses with the same type, the address will be changed to the (new) location type 'conflict'"
-    );
+    // phpcs:ignore Generic.Files.LineLength.TooLong
+    return E::ts("If there is conflicting addresses with the same type, the address will be changed to the (new) location type 'conflict'");
   }
 
   /**
@@ -74,7 +72,7 @@ class CRM_Xdedupe_Resolver_BumpAddressConflicts extends CRM_Xdedupe_Resolver {
       }
 
       // compare all addresses
-      foreach ($main_contact_addresses as $main_address_id => $main_address) {
+      foreach ($main_contact_addresses as $main_address) {
         foreach ($other_contact_addresses as $other_address_id => $other_address) {
           if ($main_address['location_type_id'] == $other_address['location_type_id']) {
             // address location type clash!
