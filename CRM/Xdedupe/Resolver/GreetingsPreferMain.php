@@ -65,7 +65,7 @@ class CRM_Xdedupe_Resolver_GreetingsPreferMain extends CRM_Xdedupe_Resolver {
   public function resolve($main_contact_id, $other_contact_ids): bool {
     $ctx = $this->getContext();
     if (!$ctx) {
-      throw new \CRM_Core_Exception("getContext failed");
+      throw new \CRM_Core_Exception('getContext failed');
     }
     $main_contact = $ctx->getContact($main_contact_id);
 

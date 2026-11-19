@@ -174,8 +174,7 @@ class CRM_Xdedupe_Resolver_AddressHarmonise extends CRM_Xdedupe_Resolver {
   /**
    * Try to establish whether any of the addresses in the array are the same.
    *
-   * @param list{
-   *   array{
+   * @param list{array{
    *     'country_id:abbr'?: ?string,
    *     'location_type_id:name': string,
    *     'id': int,
@@ -200,7 +199,13 @@ class CRM_Xdedupe_Resolver_AddressHarmonise extends CRM_Xdedupe_Resolver {
   /**
    * Determine the quality of this address and what to do with it.
    *
-   * @param array{'country_id:abbr'?: ?string, 'location_type_id:name': string, 'id': int, 'contact_id' : int, 'isMainContact': int, ...} $a
+   * @param array{
+   *   'country_id:abbr'?: ?string,
+   *   'location_type_id:name': string,
+   *   'id': int,
+   *   'contact_id': int,
+   *   'isMainContact': int,
+   *   ...} $a
    * @param list<array> $addresses
    * @param array<string> &$deletions
    * @param array<int, string> &$moves

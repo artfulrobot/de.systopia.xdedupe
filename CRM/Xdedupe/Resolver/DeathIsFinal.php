@@ -63,7 +63,7 @@ class CRM_Xdedupe_Resolver_DeathIsFinal extends CRM_Xdedupe_Resolver {
    */
   public function resolve($main_contact_id, $other_contact_ids):bool {
     $main_contact = $this->getContext()?->getContact($main_contact_id);
-    if ($main_contact === null) {
+    if ($main_contact === NULL) {
       throw new \CRM_Core_Exception("Main contact $main_contact_id has gone away.");
     }
 
