@@ -88,7 +88,7 @@ class CRM_Xdedupe_Resolver_MergeCommunicationMethodPrefs extends CRM_Xdedupe_Res
       // sort($methods);
       if ($methods != $all) {
         $contactsToUpdate[] = $ct_id;
-        $this->getContext()->unloadContact($ct_id);
+        $this->getContext()?->unloadContact($ct_id);
       }
     }
     if ($contactsToUpdate) {

@@ -63,10 +63,14 @@ class CRM_Xdedupe_Resolver_GreetingsPreferMain extends CRM_Xdedupe_Resolver {
    * @throws Exception if the conflict couldn't be resolved
    */
   public function resolve($main_contact_id, $other_contact_ids): bool {
-    $main_contact = $this->getContext()->getContact($main_contact_id);
+    $ctx = $this->getContext();
+    if (!$ctx) {
+      throw new \CRM_Core_Exception("getContext failed");
+    }
+    $main_contact = $ctx->getContact($main_contact_id);
 
     foreach ($other_contact_ids as $contact_id) {
-      $contact = $this->getContext()->getContact($contact_id);
+      $contact = $ctx->getContact($contact_id);
       $records = [];
       foreach (['email_greeting', 'postal_greeting', 'addressee'] as $type) {
         if (
@@ -88,7 +92,7 @@ class CRM_Xdedupe_Resolver_GreetingsPreferMain extends CRM_Xdedupe_Resolver {
         }
       }
       if ($records) {
-        $this->getContext()->unloadContact($contact_id);
+        $ctx->unloadContact($contact_id);
         Civi\Api4\Contact::save(FALSE)
           ->setRecords($records)
           ->execute();

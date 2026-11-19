@@ -140,9 +140,14 @@ class CRM_Xdedupe_Resolver_AddressHarmonise extends CRM_Xdedupe_Resolver {
 
     $addressesByLocType = [];
     foreach ($unsorted as $x) {
-      /** @var array<string,mixed> $x*/
-      $addressesByLocType[$x['location_type_id:name']][] = $x
-                + ['isMainContact' => (int) ($x['contact_id'] == $main_contact_id)];
+      /** @var array{
+       *  'country_id:abbr'?: ?string,
+       *  'location_type_id:name': string,
+       *  'contact_id': int,
+       *  'id': int,
+       *  ...} $x */
+      $addressesByLocType[$x['location_type_id:name'] ?? ''][] =
+        $x + ['isMainContact' => (int) ($x['contact_id'] == $main_contact_id)];
     }
 
     // Dedupe addresses for each loc type, within this one contact.
@@ -169,7 +174,16 @@ class CRM_Xdedupe_Resolver_AddressHarmonise extends CRM_Xdedupe_Resolver {
   /**
    * Try to establish whether any of the addresses in the array are the same.
    *
-   * @param list<array> $addresses
+   * @param list{
+   *   array{
+   *     'country_id:abbr'?: ?string,
+   *     'location_type_id:name': string,
+   *     'id': int,
+   *     'contact_id': int,
+   *     'isMainContact': int,
+   *     ...
+   *     }} $addresses
+   *
    * @return array{array<int,string>,array<int, string>}
    *   Two values: deletions, moves. Each is itself an array whose keys are
    *    address ID, value is log message.
@@ -186,7 +200,7 @@ class CRM_Xdedupe_Resolver_AddressHarmonise extends CRM_Xdedupe_Resolver {
   /**
    * Determine the quality of this address and what to do with it.
    *
-   * @param array<string,mixed> $a
+   * @param array{'country_id:abbr'?: ?string, 'location_type_id:name': string, 'id': int, 'contact_id' : int, 'isMainContact': int, ...} $a
    * @param list<array> $addresses
    * @param array<string> &$deletions
    * @param array<int, string> &$moves
@@ -201,7 +215,7 @@ class CRM_Xdedupe_Resolver_AddressHarmonise extends CRM_Xdedupe_Resolver {
     // this is constant across all addresses.
     $locTypeName = $a['location_type_id:name'];
     // If country is missing, add in US.
-    $a['country_id:abbr'] = $a['country_id:abbr'] ?: $this->defaultCountryAbbr;
+    $a['country_id:abbr'] = ($a['country_id:abbr'] ?? '') ?: $this->defaultCountryAbbr;
 
     // Compare to the rest of the addresses.
     $aCountValues = 0;
@@ -397,8 +411,8 @@ class CRM_Xdedupe_Resolver_AddressHarmonise extends CRM_Xdedupe_Resolver {
                     '@[.;,;:\'’‘_()\[\]{}#$-\/]+@u',
                     '',
                     trim($a)
-                )
-            )
+                ) ?? ''
+            ) ?? ''
     );
   }
 
@@ -424,14 +438,14 @@ class CRM_Xdedupe_Resolver_AddressHarmonise extends CRM_Xdedupe_Resolver {
     // Strip out any numbers, re-normalise spaces.
     // since 1 2 3 would result in two spaces.
     [$a, $b] = array_map(
-        fn($x) => preg_replace('/\s+/', ' ', preg_replace('/[0-9]+/', '', $x)),
+        fn($x) => preg_replace('/\s+/', ' ', preg_replace('/[0-9]+/', '', $x) ?? ''),
         [$a, $b]
     );
 
     // If the characters are ascii, we can compare the sound of the text
     // using metaphone and levenshtein. Otherwise we give up.
     [$aAscii, $bAscii] = array_map(
-        fn($x) => preg_match('/^[a-zA-Z ]+$/', $x),
+        fn($x) => preg_match('/^[a-zA-Z ]+$/', $x ?? ''),
         [$a, $b]
     );
     if (!$aAscii || !$bAscii) {
@@ -440,7 +454,7 @@ class CRM_Xdedupe_Resolver_AddressHarmonise extends CRM_Xdedupe_Resolver {
     }
 
     // How similar do these sound?
-    $difference = levenshtein(metaphone($a), metaphone($b));
+    $difference = levenshtein(metaphone($a ?? ''), metaphone($b ?? ''));
 
     return $difference;
   }
